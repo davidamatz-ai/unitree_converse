@@ -123,8 +123,14 @@ if [ "$IS_ROBOT" == "true" ]; then
         echo "Ollama service enabled."
 
         # unitree_converse
-        # Dynamically patch the ROS distro in the service file
-        sed "s|/opt/ros/foxy/setup.bash|/opt/ros/${ROS_DISTRO}/setup.bash|g" unitree_converse.service > /tmp/unitree_converse.service
+        # Dynamically patch the ROS distro and prefix path in the service file
+        if [ "$ROS_DISTRO" == "humble" ]; then
+            sed -e "s|/opt/ros/foxy/setup.bash|/opt/ros/${ROS_DISTRO}/setup.bash|g" \
+                -e "s|/home/unitree/unitree_converse/install/g1_voice:/home/unitree/unitree_converse/install/bob_llm|/home/unitree/unitree_converse/install|g" \
+                unitree_converse.service > /tmp/unitree_converse.service
+        else
+            sed "s|/opt/ros/foxy/setup.bash|/opt/ros/${ROS_DISTRO}/setup.bash|g" unitree_converse.service > /tmp/unitree_converse.service
+        fi
         sudo cp /tmp/unitree_converse.service /etc/systemd/system/unitree_converse.service
         rm -f /tmp/unitree_converse.service
 
