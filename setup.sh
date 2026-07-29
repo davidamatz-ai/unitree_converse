@@ -8,12 +8,13 @@ echo ""
 echo "Where are you setting this up?"
 echo "  1) Unitree G1 Jetson Orin NX (Ubuntu 20.04, ROS2 Foxy)"
 echo "  2) Dev machine (Ubuntu 22.04, ROS2 Humble)"
+echo "  3) Unitree G1 Jetson (Newer Jetpack, Ubuntu 22.04, ROS2 Humble)"
 echo ""
-read -p "Enter 1 or 2: " CHOICE
+read -p "Enter 1, 2 or 3: " CHOICE
 
 if [ "$CHOICE" == "1" ]; then
     echo ""
-    echo ">>> Setting up for Unitree G1 Jetson..."
+    echo ">>> Setting up for Unitree G1 Jetson (Foxy)..."
     ROS_DISTRO="foxy"
     IS_ROBOT=true
 elif [ "$CHOICE" == "2" ]; then
@@ -21,6 +22,11 @@ elif [ "$CHOICE" == "2" ]; then
     echo ">>> Setting up for dev machine..."
     ROS_DISTRO="humble"
     IS_ROBOT=false
+elif [ "$CHOICE" == "3" ]; then
+    echo ""
+    echo ">>> Setting up for Unitree G1 Jetson (Humble)..."
+    ROS_DISTRO="humble"
+    IS_ROBOT=true
 else
     echo "Invalid choice. Exiting."
     exit 1
@@ -117,7 +123,17 @@ if [ "$IS_ROBOT" == "true" ]; then
         echo "Ollama service enabled."
 
         # unitree_converse
-        sudo cp unitree_converse.service /etc/systemd/system/
+        # Dynamically patch the ROS distro and prefix path in the service file
+        if [ "$ROS_DISTRO" == "humble" ]; then
+            sed -e "s|/opt/ros/foxy/setup.bash|/opt/ros/${ROS_DISTRO}/setup.bash|g" \
+                -e "s|/home/unitree/unitree_converse/install/g1_voice:/home/unitree/unitree_converse/install/bob_llm|/home/unitree/unitree_converse/install|g" \
+                unitree_converse.service > /tmp/unitree_converse.service
+        else
+            sed "s|/opt/ros/foxy/setup.bash|/opt/ros/${ROS_DISTRO}/setup.bash|g" unitree_converse.service > /tmp/unitree_converse.service
+        fi
+        sudo cp /tmp/unitree_converse.service /etc/systemd/system/unitree_converse.service
+        rm -f /tmp/unitree_converse.service
+
         sudo systemctl daemon-reload
         sudo systemctl enable unitree_converse.service
         sudo systemctl start unitree_converse.service
