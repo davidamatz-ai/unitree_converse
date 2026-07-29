@@ -20,14 +20,14 @@ cd unitree_converse
 ./setup.sh
 ```
 
-The setup script will ask whether you are setting up on the **Unitree G1 Jetson** or a **dev machine**, then handle everything automatically:
+The setup script will ask whether you are setting up on the **Unitree G1 Jetson (Foxy)**, a **dev machine (Humble)**, or the **Unitree G1 Jetson with a newer Jetpack (Humble)**, then handle everything automatically:
 
 - Downloads Piper voice model (`en_US-lessac-medium`)
 - Downloads faster-whisper base model
 - Installs Piper binary (Jetson) or piper-tts Python package (dev machine)
 - Installs and starts Ollama, pulls LLaMA 3.2 3B
 - Builds the ROS2 workspace
-- Installs and enables systemd services (Jetson only)
+- Installs and enables systemd services (Jetson/robot only)
 
 > **Note:** If `setup.sh` fails at any step, see the [Manual Installation](#manual-installation) section below for step-by-step instructions.
 
@@ -263,6 +263,10 @@ echo "Hello, I am Aletta." | ~/unitree_sdk2_latest/build/bin/g1_piper_tts eth0
 ## Manual Installation
 
 > Use these steps if `setup.sh` fails at any point.
+
+### Jetson Orin NX (Newer Jetpack, Ubuntu 22.04, ROS2 Humble)
+
+The manual installation steps are identical to the Foxy installation below, except you should replace all references to `/opt/ros/foxy/setup.bash` with `/opt/ros/humble/setup.bash`.
 
 ### Jetson Orin NX (Ubuntu 20.04, ROS2 Foxy)
 
